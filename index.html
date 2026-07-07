@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CeluCenter — TikTok Portada</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Poppins:wght@800;900&family=Oswald:wght@700&family=Black+Ops+One&family=Rye&family=Titan+One&family=Bungee&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #1a1a1a;
+      --border: #333;
+      --text: #f5f5f5;
+      --muted: #888;
+      --accent: #FF2D55;
+      --accent2: #5856D6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px;
+      gap: 24px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 900;
+      text-align: center;
+      background: linear-gradient(135deg, #FF2D55, #FF9500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .workspace {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    /* --- Thumbnail Preview --- */
+    .preview-area {
+      flex: 0 0 auto;
+    }
+
+    #thumbnail {
+      width: 360px;
+      height: 360px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 0 0 2px var(--border), 0 20px 60px rgba(0,0,0,0.6);
+    }
+
+    #thumbnail-inner {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 16px;
+      position: relative;
+    }
+
+    .word-top, .word-bottom {
+      font-family: 'Anton', sans-serif;
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 0.9;
+      z-index: 2;
+      letter-spacing: 2px;
+      /* default */
+      font-size: 72px;
+      color: #fff;
+      text-shadow:
+        3px 3px 0 #000,
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    .thumb-image-wrap {
+      z-index: 2;
+      width: 145px;
+      height: 145px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 4px solid rgba(255,255,255,0.25);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: #222;
+    }
+
+    #thumb-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    #thumb-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: #555;
+    }
+
+    /* background layers */
+    #bg-gradient {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .bg-texture {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      opacity: 0.06;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* --- Controls --- */
+    .controls {
+      flex: 1 1 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 260px;
+      max-width: 360px;
+    }
+
+    .ctrl-group {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .ctrl-group label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .ctrl-group input[type="text"] {
+      width: 100%;
+      background: #111;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 8px 12px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .ctrl-group input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+
+    .ctrl-group input[type="file"] {
+      width: 100%;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .color-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .color-row input[type="color"] {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: none;
+      padding: 0;
+    }
+
+    .color-presets {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .preset-swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+
+    .preset-swatch:hover {
+      transform: scale(1.15);
+      border-color: #fff;
+    }
+
+    .preset-swatch.active {
+      border-color: #fff;
+    }
+
+    .font-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .font-btn {
+      background: #111;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 7px 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .font-btn:hover { border-color: #666; background: #1a1a1a; }
+    .font-btn.active { border-color: var(--accent); background: #1f0a12; }
+
+    .font-btn span {
+      display: block;
+      font-size: 0.65rem;
+      color: var(--muted);
+      font-weight: 400;
+      margin-top: 1px;
+    }
+
+    /* gradient presets */
+    .gradient-presets {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .grad-preset {
+      height: 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+
+    .grad-preset:hover { transform: scale(1.05); }
+    .grad-preset.active { border-color: #fff; }
+
+    .btn-export {
+      background: linear-gradient(135deg, #FF2D55, #FF9500);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 800;
+      padding: 12px;
+      cursor: pointer;
+      width: 100%;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+
+    .btn-export:hover { opacity: 0.9; transform: scale(1.02); }
+
+    .btn-reset {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 8px;
+      cursor: pointer;
+      width: 100%;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-reset:hover { border-color: #666; color: var(--text); }
+
+    .tip {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* size guide */
+    .size-guide {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 4px;
+    }
+
+    .size-dot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .size-dot span {
+      font-size: 0.6rem;
+      color: var(--muted);
+    }
+
+    /* ---- Tiny thumbnail preview strip ---- */
+    .tiny-strip {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .tiny-thumb {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid var(--border);
+      position: relative;
+    }
+
+    .tiny-thumb canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    .tiny-thumb span {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      font-size: 0.45rem;
+      font-weight: 900;
+      text-align: center;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      padding: 1px 2px;
+      font-family: 'Anton', sans-serif;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎬 Crea tu Portada TikTok</h1>
+
+  <div class="workspace">
+
+    <!-- Preview -->
+    <div class="preview-area">
+      <div id="thumbnail">
+        <canvas id="bg-gradient" width="360" height="360"></canvas>
+        <div class="bg-texture"></div>
+        <div id="thumbnail-inner">
+          <div class="word-top" id="word-top">CELUCENTER</div>
+          <div class="thumb-image-wrap">
+            <img id="thumb-img" src="" alt="" style="display:none">
+            <div id="thumb-placeholder">📱</div>
+          </div>
+          <div class="word-bottom" id="word-bottom">OFERTAS</div>
+        </div>
+      </div>
+
+      <!-- Tiny previews -->
+      <div class="size-guide">
+        <span style="font-size:0.65rem;color:var(--muted)">Vista previa pequeña:</span>
+      </div>
+      <div class="tiny-strip" id="tiny-strip"></div>
+
+      <p class="tip" style="margin-top:10px">
+        📸 Usa una foto cuadrada, mejor si tiene fondo liso<br>
+        💡 Los colores neón y negro funcionan muy bien en miniatura
+      </p>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+
+      <div class="ctrl-group">
+        <label>Palabra de arriba</label>
+        <input type="text" id="input-top" placeholder="ej: CELUCENTER" maxlength="16" value="CELUCENTER">
+      </div>
+
+      <div class="ctrl-group">
+        <label>Palabra de abajo</label>
+        <input type="text" id="input-bottom" placeholder="ej: OFERTAS" maxlength="16" value="OFERTAS">
+      </div>
+
+      <div class="ctrl-group">
+        <label>Tu foto o del producto</label>
+        <input type="file" id="input-img" accept="image/*">
+      </div>
+
+      <div class="ctrl-group">
+        <label>Color de fondo</label>
+        <div class="gradient-presets" id="grad-presets">
+          <div class="grad-preset active" style="background:linear-gradient(135deg,#FF2D55,#FF9500)" data-grad="linear-gradient(135deg,#FF2D55,#FF9500)"></div>
+          <div class="grad-preset" style="background:linear-gradient(135deg,#0f0f0f,#1a1a2e)" data-grad="linear-gradient(135deg,#0f0f0f,#1a1a2e)"></div>
+          <div class="grad-preset" style="background:linear-gradient(135deg,#00d2ff,#3a7bd5)" data-grad="linear-gradient(135deg,#00d2ff,#3a7bd5)"></div>
+          <div class="grad-preset" style="background:linear-gradient(135deg,#f7971e,#ffd200)" data-grad="linear-gradient(135deg,#f7971e,#ffd200)"></div>
+          <div class="grad-preset" style="background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)" data-grad="linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)"></div>
+          <div class="grad-preset" style="background:linear-gradient(135deg,#000,#ff0000)" data-grad="linear-gradient(135deg,#000,#ff0000)"></div>
+          <div class="grad-preset" style="background:linear-gradient(135deg,#00b09b,#96c93d)" data-grad="linear-gradient(135deg,#00b09b,#96c93d)"></div>
+          <div class="grad-preset" style="background:linear-gradient(135deg,#1a1a1a,#ff2d55 120%)" data-grad="linear-gradient(135deg,#1a1a1a,#ff2d55 120%)"></div>
+          <div class="grad-preset" style="background:linear-gradient(135deg,#FF1493,#FFD700)" data-grad="linear-gradient(135deg,#FF1493,#FFD700)"></div>
+          <div class="grad-preset" style="background:linear-gradient(135deg,#000428,#004e92)" data-grad="linear-gradient(135deg,#000428,#004e92)"></div>
+          <div class="grad-preset" style="background:linear-gradient(135deg,#0f0f0f,#333)" data-grad="linear-gradient(135deg,#0f0f0f,#333)"></div>
+          <div class="grad-preset" style="background:linear-gradient(135deg,#E94057,#F27121)" data-grad="linear-gradient(135deg,#E94057,#F27121)"></div>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <label>Estilo de texto</label>
+        <div class="font-row">
+          <button class="font-btn active" data-font="Anton" style="font-family:'Anton'">
+            ANTON
+            <span>Impactante, condensado</span>
+          </button>
+          <button class="font-btn" data-font="Bebas Neue" style="font-family:'Bebas Neue'">
+            BEBAS NEUE
+            <span>Clásico, limpio</span>
+          </button>
+          <button class="font-btn" data-font="Oswald" style="font-family:'Oswald'">
+            OSWALD
+            <span>Semi-condensado, fuerte</span>
+          </button>
+          <button class="font-btn" data-font="Black Ops One" style="font-family:'Black Ops One'">
+            BLACK OPS
+            <span>Militar, agresivo</span>
+          </button>
+          <button class="font-btn" data-font="Rye" style="font-family:'Rye'">
+            RYE
+            <span>Western, único</span>
+          </button>
+          <button class="font-btn" data-font="Bungee" style="font-family:'Bungee'">
+            BUNGEE
+            <span>Geométrico, urbano</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <label>Color de texto</label>
+        <div class="color-presets" id="text-presets">
+          <input type="color" id="text-color" value="#ffffff">
+        </div>
+        <div class="color-presets" id="text-presets2"></div>
+        <div id="text-color-swatches"></div>
+      </div>
+
+      <button class="btn-export" id="btn-export">⬇️ Descargar Imagen</button>
+      <button class="btn-reset" id="btn-reset">🔄 Restablecer</button>
+
+    </div>
+  </div>
+
+  <script>
+    // State
+    const state = {
+      wordTop: 'CELUCENTER',
+      wordBottom: 'OFERTAS',
+      font: 'Anton',
+      textColor: '#ffffff',
+      bgGradient: 'linear-gradient(135deg,#FF2D55,#FF9500)',
+      imageDataUrl: null,
+    };
+
+    // DOM refs
+    const el = {
+      wordTop: document.getElementById('word-top'),
+      wordBottom: document.getElementById('word-bottom'),
+      inputTop: document.getElementById('input-top'),
+      inputBottom: document.getElementById('input-bottom'),
+      inputImg: document.getElementById('input-img'),
+      thumbImg: document.getElementById('thumb-img'),
+      thumbPlaceholder: document.getElementById('thumb-placeholder'),
+      thumbnail: document.getElementById('thumbnail'),
+      thumbnailInner: document.getElementById('thumbnail-inner'),
+      bgGradient: document.getElementById('bg-gradient'),
+      gradPresets: document.querySelectorAll('.grad-preset'),
+      fontBtns: document.querySelectorAll('.font-btn'),
+      textColor: document.getElementById('text-color'),
+      tinyStrip: document.getElementById('tiny-strip'),
+      btnExport: document.getElementById('btn-export'),
+      btnReset: document.getElementById('btn-reset'),
+    };
+
+    const ctx = el.bgGradient.getContext('2d');
+
+    // --- Render ---
+    function render() {
+      el.wordTop.textContent = state.wordTop.toUpperCase();
+      el.wordBottom.textContent = state.wordBottom.toUpperCase();
+      el.wordTop.style.fontFamily = `'${state.font}', sans-serif`;
+      el.wordBottom.style.fontFamily = `'${state.font}', sans-serif`;
+      el.wordTop.style.color = state.textColor;
+      el.wordBottom.style.color = state.textColor;
+
+      // Draw gradient on canvas
+      const size = 360;
+      ctx.clearRect(0, 0, size, size);
+      const grad = ctx.createLinearGradient(0, 0, size, size);
+      // Parse gradient angles roughly
+      const gradParts = state.bgGradient.match(/#[0-9a-fA-F]{6}/g) || [];
+      if (gradParts.length >= 2) {
+        grad.addColorStop(0, gradParts[0]);
+        grad.addColorStop(1, gradParts[1]);
+      } else {
+        // fallback
+        grad.addColorStop(0, '#FF2D55');
+        grad.addColorStop(1, '#FF9500');
+      }
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, size, size);
+
+      // Apply gradient as bg
+      el.thumbnailInner.style.background = state.bgGradient;
+
+      updateTinyPreviews();
+    }
+
+    function updateTinyPreviews() {
+      el.tinyStrip.innerHTML = '';
+      const sizes = [60, 80];
+      sizes.forEach((sz, i) => {
+        const div = document.createElement('div');
+        div.className = 'tiny-thumb';
+        const canvas = document.createElement('canvas');
+        canvas.width = sz;
+        canvas.height = sz;
+        const tctx = canvas.getContext('2d');
+
+        // Draw gradient
+        const grad = tctx.createLinearGradient(0, 0, sz, sz);
+        const gradParts = state.bgGradient.match(/#[0-9a-fA-F]{6}/g) || [];
+        grad.addColorStop(0, gradParts[0] || '#FF2D55');
+        grad.addColorStop(1, gradParts[1] || '#FF9500');
+        tctx.fillStyle = grad;
+        tctx.fillRect(0, 0, sz, sz);
+
+        // Draw top word
+        tctx.fillStyle = state.textColor;
+        tctx.font = `bold ${Math.round(sz * 0.13)}px Anton, sans-serif`;
+        tctx.textAlign = 'center';
+        tctx.textBaseline = 'top';
+        tctx.shadowColor = 'rgba(0,0,0,0.8)';
+        tctx.shadowBlur = 3;
+        tctx.shadowOffsetX = 1;
+        tctx.shadowOffsetY = 1;
+        tctx.fillText(state.wordTop.toUpperCase(), sz / 2, Math.round(sz * 0.03));
+
+        // Draw circle image or placeholder
+        const circR = sz * 0.27;
+        tctx.save();
+        tctx.beginPath();
+        tctx.arc(sz / 2, sz / 2, circR, 0, Math.PI * 2);
+        tctx.clip();
+        if (state.imageDataUrl) {
+          const img = new Image();
+          img.onload = () => {
+            tctx.drawImage(img, sz / 2 - circR, sz / 2 - circR, circR * 2, circR * 2);
+          };
+          img.src = state.imageDataUrl;
+        } else {
+          tctx.fillStyle = '#222';
+          tctx.fillRect(sz / 2 - circR, sz / 2 - circR, circR * 2, circR * 2);
+          tctx.font = `${Math.round(sz * 0.22)}px serif`;
+          tctx.fillStyle = '#555';
+          tctx.shadowBlur = 0;
+          tctx.fillText('📱', sz / 2, sz / 2 - circR * 0.7);
+        }
+        tctx.restore();
+
+        // Draw bottom word
+        tctx.fillStyle = state.textColor;
+        tctx.font = `bold ${Math.round(sz * 0.13)}px Anton, sans-serif`;
+        tctx.textAlign = 'center';
+        tctx.textBaseline = 'bottom';
+        tctx.shadowColor = 'rgba(0,0,0,0.8)';
+        tctx.shadowBlur = 3;
+        tctx.shadowOffsetX = 1;
+        tctx.shadowOffsetY = 1;
+        tctx.fillText(state.wordBottom.toUpperCase(), sz / 2, sz - Math.round(sz * 0.03));
+
+        div.appendChild(canvas);
+
+        if (i === 0) {
+          const lbl = document.createElement('span');
+          lbl.textContent = `${sz}px`;
+          div.style.position = 'relative';
+          div.appendChild(lbl);
+        }
+
+        el.tinyStrip.appendChild((div));
+      });
+    }
+
+    // --- Text color swatches ---
+    const textSwatchColors = ['#ffffff', '#f5f5f5', '#ff2d55', '#ffd200', '#00d2ff', '#ff9500', '#ff6600'];
+    const textSwatchWrap = document.getElementById('text-color-swatches');
+
+    textSwatchColors.forEach(c => {
+      const sw = document.createElement('div');
+      sw.className = 'preset-swatch';
+      sw.style.background = c;
+      sw.style.border = c === '#ffffff' ? '2px solid #444' : '2px solid transparent';
+      sw.title = c;
+      sw.addEventListener('click', () => {
+        state.textColor = c;
+        el.textColor.value = c;
+        render();
+      });
+      textSwatchWrap.appendChild(sw);
+    });
+
+    // --- Events ---
+    el.inputTop.addEventListener('input', e => {
+      state.wordTop = e.target.value;
+      render();
+    });
+
+    el.inputBottom.addEventListener('input', e => {
+      state.wordBottom = e.target.value;
+      render();
+    });
+
+    el.inputImg.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        state.imageDataUrl = ev.target.result;
+        el.thumbImg.src = ev.target.result;
+        el.thumbImg.style.display = 'block';
+        el.thumbPlaceholder.style.display = 'none';
+        render();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    el.gradPresets.forEach(p => {
+      p.addEventListener('click', () => {
+        el.gradPresets.forEach(x => x.classList.remove('active'));
+        p.classList.add('active');
+        state.bgGradient = p.dataset.grad;
+        render();
+      });
+    });
+
+    el.fontBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        el.fontBtns.forEach(x => x.classList.remove('active'));
+        btn.classList.add('active');
+        state.font = btn.dataset.font;
+        render();
+      });
+    });
+
+    el.textColor.addEventListener('input', e => {
+      state.textColor = e.target.value;
+      render();
+    });
+
+    el.btnReset.addEventListener('click', () => {
+      state.wordTop = 'CELUCENTER';
+      state.wordBottom = 'OFERTAS';
+      state.font = 'Anton';
+      state.textColor = '#ffffff';
+      state.bgGradient = 'linear-gradient(135deg,#FF2D55,#FF9500)';
+      state.imageDataUrl = null;
+      el.inputTop.value = 'CELUCENTER';
+      el.inputBottom.value = 'OFERTAS';
+      el.inputImg.value = '';
+      el.thumbImg.style.display = 'none';
+      el.thumbPlaceholder.style.display = 'flex';
+      el.gradPresets.forEach((x, i) => x.classList.toggle('active', i === 0));
+      el.fontBtns.forEach((x, i) => x.classList.toggle('active', i === 0));
+      el.textColor.value = '#ffffff';
+      render();
+    });
+
+    // --- Download ---
+    el.btnExport.addEventListener('click', () => {
+      const size = 1080;
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const c = canvas.getContext('2d');
+
+      // Draw gradient
+      const gradParts = state.bgGradient.match(/#[0-9a-fA-F]{6}/g) || [];
+      const grad = c.createLinearGradient(0, 0, size, size);
+      grad.addColorStop(0, gradParts[0] || '#FF2D55');
+      grad.addColorStop(1, gradParts[1] || '#FF9500');
+      c.fillStyle = grad;
+      c.fillRect(0, 0, size, size);
+
+      // Text style
+      const fontSize = Math.round(size * 0.18);
+      c.fillStyle = state.textColor;
+      c.font = `bold ${fontSize}px '${state.font}', sans-serif`;
+      c.textAlign = 'center';
+      c.shadowColor = 'rgba(0,0,0,0.7)';
+      c.shadowBlur = 8;
+      c.shadowOffsetX = 3;
+      c.shadowOffsetY = 3;
+
+      // Top word
+      c.textBaseline = 'top';
+      c.fillText(state.wordTop.toUpperCase(), size / 2, Math.round(size * 0.06));
+
+      // Bottom word
+      c.textBaseline = 'bottom';
+      c.fillText(state.wordBottom.toUpperCase(), size / 2, size - Math.round(size * 0.06));
+
+      // Circle image
+      const imgR = size * 0.24;
+      c.save();
+      c.beginPath();
+      c.arc(size / 2, size / 2, imgR, 0, Math.PI * 2);
+      c.clip();
+
+      if (state.imageDataUrl) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          // draw from center
+          const side = imgR * 2;
+          c.drawImage(img, size / 2 - imgR, size / 2 - imgR, side, side);
+          downloadCanvas();
+        };
+        img.onerror = () => downloadCanvas();
+        img.src = state.imageDataUrl;
+      } else {
+        // placeholder circle
+        c.fillStyle = '#222';
+        c.fillRect(size / 2 - imgR, size / 2 - imgR, imgR * 2, imgR * 2);
+        c.shadowBlur = 0;
+        c.font = `${Math.round(size * 0.12)}px serif`;
+        c.fillStyle = '#444';
+        c.textBaseline = 'middle';
+        c.fillText('📱', size / 2, size / 2);
+        downloadCanvas();
+      }
+
+      function downloadCanvas() {
+        const link = document.createElement('a');
+        link.download = `portada-tiktok-${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }
+    });
+
+    // Init
+    render();
+  </script>
+</body>
+</html>
